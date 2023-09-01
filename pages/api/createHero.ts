@@ -1,8 +1,6 @@
 import { NextApiRequest, NextApiResponse } from "next/dist/shared/lib/utils"
 import { z } from 'zod'
 import { supabase } from "@/src/supabase";
-import { generateImage } from "@/src/generateImage";
-import { saveImage } from "@/src/saveImage";
 import { Database } from "@/src/database.types";
 
 
@@ -30,11 +28,13 @@ export default async function handler(
 
         const { id } = await putInDatabase(hero)
 
-        const { url } = await generateImage(hero)
-
-        await saveImage(id, url)
-
-        return res.json({ id })
+        const generateImageBody = JSON.stringify({ id, ...body })
+        void fetch(`${process.env.BACK_END_URL}/api/generateImage`,
+            { body: generateImageBody, method: "POST" }
+        )
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        return res.json({ id})
     } catch (err) {
         return res.status(500).json({ result: 'fail' })
     }
