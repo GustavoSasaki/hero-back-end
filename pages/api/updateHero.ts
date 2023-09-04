@@ -4,7 +4,6 @@ import { supabase } from "@/src/supabase";
 import { Hero } from "./createHero";
 
 const payloadSchema = z.object({
-    token: z.string(),
     id: z.number(),
     name: z.string().optional(),
     alter_ego: z.string().optional(),
@@ -16,18 +15,16 @@ export default async function handler(
     res: NextApiResponse<{ result: string }>,
 ) {
     try {
-        const body = payloadSchema.parse(req.body)
+        const json = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
+        const body = payloadSchema.parse(json)
 
-        if (body.token !== process.env.REVALIDATE_TOKEN) {
-            return res.status(401).json({ result: 'wrong token' })
-        }
-        const { token, id, ...hero } = body;
+        const { id, ...hero } = body;
 
         await updateHeroInDatabase(hero, id)
-        
+
         return res.json({ result: 'success' })
     } catch (err) {
-        return res.status(500).json({ result: 'fail' })
+        return res.status(500).json({ result: 'fail'})
     }
 }
 
@@ -35,5 +32,5 @@ async function updateHeroInDatabase(newInfo: Partial<Hero>, id: number) {
     const { error } = await supabase.from('heroes').update(newInfo).eq('id', id)
 
     if (!!error)
-        throw new Error('error in database')
+        throw error
 }
