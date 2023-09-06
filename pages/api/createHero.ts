@@ -5,7 +5,6 @@ import { Database } from "@/src/database.types";
 
 
 const payloadSchema = z.object({
-    token: z.string(),
     name: z.string(),
     alter_ego: z.string(),
     power: z.string(),
@@ -19,16 +18,12 @@ export default async function handler(
     res: NextApiResponse<{ result: string } | { id: number }>,
 ) {
     try {
-        const body = payloadSchema.parse(req.body)
+        const json = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
+        const body = payloadSchema.parse(json)
 
-        if (body.token !== process.env.REVALIDATE_TOKEN) {
-            return res.status(401).json({ result: 'wrong token' })
-        }
-        const { token, ...hero } = body;
+        const { id } = await putInDatabase(body)
 
-        const { id } = await putInDatabase(hero)
-
-        const generateImageBody = JSON.stringify({ id, ...body })
+        const generateImageBody = JSON.stringify({ id, token: process.env.REVALIDATE_TOKEN, ...body })
         void fetch(`${process.env.BACK_END_URL}/api/generateImage`,
             { body: generateImageBody, method: "POST" }
         )

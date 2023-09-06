@@ -3,7 +3,6 @@ import { z } from 'zod'
 import { supabase } from "@/src/supabase";
 
 const payloadSchema = z.object({
-    token: z.string(),
     id: z.number()
 })
 export default async function handler(
@@ -11,11 +10,8 @@ export default async function handler(
     res: NextApiResponse<{ result: string }>,
 ) {
     try {
-        const body = payloadSchema.parse(req.body)
-
-        if (body.token !== process.env.REVALIDATE_TOKEN) {
-            return res.status(401).json({ result: 'wrong token' })
-        }
+        const json = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
+        const body = payloadSchema.parse(json)
 
         await removeFromDatabase(body.id)
 
