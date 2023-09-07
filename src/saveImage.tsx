@@ -13,3 +13,9 @@ export async function saveImage(id:number, url:string){
       {contentType: 'image/png'})
 }
 
+
+export async function saveDescription(id:number, description:string){
+
+    await supabase.from('heroes').update({description}).eq('id',id)
+
+}

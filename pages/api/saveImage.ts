@@ -1,11 +1,12 @@
 import { NextApiRequest, NextApiResponse } from "next/dist/shared/lib/utils"
 import { z } from 'zod'
-import { saveImage } from "@/src/saveImage";
+import { saveDescription, saveImage } from "@/src/saveImage";
 
 const payloadSchema = z.object({
     token: z.string(),
     url: z.string(),
-    id: z.number()
+    id: z.number(),
+    description: z.string()
 })
 
 export default async function handler(
@@ -21,6 +22,7 @@ export default async function handler(
         }
 
         await saveImage(body.id, body.url)
+        await saveDescription(body.id, body.description)
 
         return res.json({ result: 'success' })
     } catch (err) {

@@ -8,9 +8,11 @@ const payloadSchema = z.object({
     name: z.string(),
     alter_ego: z.string(),
     power: z.string(),
-    gender: z.string()
+    gender: z.string(),
+    color: z.string(),
+    age: z.string().optional().transform( x => {return x === undefined ? null : x}),
 })
-export type Hero = Omit<Database['public']['Tables']['heroes']['Row'], 'id'>
+export type Hero = Omit<Database['public']['Tables']['heroes']['Row'], 'id' | 'description' | 'backstory'>
 
 
 export default async function handler(

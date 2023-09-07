@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from "next/dist/shared/lib/utils"
 import { z } from 'zod'
 import { generateImage } from "@/src/generateImage";
+import { createPrompt } from "@/src/createPrompt";
 
 const payloadSchema = z.object({
     token: z.string(),
@@ -8,6 +9,8 @@ const payloadSchema = z.object({
     alter_ego: z.string(),
     power: z.string(),
     gender: z.string(),
+    color: z.string(),
+    age: z.string().optional().transform( x => {return x === undefined ? null : x}),
     id: z.number()
 })
 
@@ -24,8 +27,9 @@ export default async function handler(
             return res.status(401).json({ result: 'wrong token' })
         }
 
-        const { url } = await generateImage(body)
-        const saveImage = JSON.stringify({ token: body.token, id: body.id, url })
+        const description = createPrompt(body)
+        const { url } = await generateImage(description)
+        const saveImage = JSON.stringify({ token: body.token, id: body.id, url, description })
 
         void fetch(`${process.env.BACK_END_URL}/api/saveImage`,
             { body: saveImage, method: "POST" }
