@@ -1,14 +1,15 @@
 import { NextApiRequest, NextApiResponse } from "next/dist/shared/lib/utils"
 import { z } from 'zod'
-import { saveDescription, saveImage } from "@/src/saveImage";
-import { generateBackstoryInput } from "./generateBackstory";
+import { generateText } from "@/src/generateText";
+import { saveBackstory } from "@/src/saveBackstory";
+
 
 const payloadSchema = z.object({
     token: z.string(),
-    url: z.string(),
     id: z.number(),
     description: z.string()
 })
+export type generateBackstoryInput = z.infer<typeof payloadSchema>;
 
 export default async function handler(
     req: NextApiRequest,
@@ -22,22 +23,16 @@ export default async function handler(
             return res.status(401).json({ result: 'wrong token' })
         }
 
-        await saveImage(body.id, body.url)
-        await saveDescription(body.id, body.description)
-        await callGenerateBackStory(body)
+        const backstory = await generateText(body.description)
+        if(!backstory)
+            throw new Error('no output ia returned')
+
+        await saveBackstory(body.id,backstory)
+        
 
         return res.json({ result: 'success' })
     } catch (err) {
-        return res.status(500).json({ result: 'fail' })
+        console.log(err)
+        return res.status(500).json({ result : 'fail'})
     }
-}
-
-async function callGenerateBackStory(payload : generateBackstoryInput){
-
-    const body = JSON.stringify(payload)
-    void fetch(`${process.env.BACK_END_URL}/api/generateBackstory`,
-        { body, method: "POST" }
-    )
-
-    await new Promise(resolve => setTimeout(resolve, 1000));
 }

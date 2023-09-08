@@ -1,6 +1,6 @@
 import OpenAI from 'openai';
 const apiKey = process.env.OPENAI_KEY!
-const openai = new OpenAI({ apiKey });
+export const openai = new OpenAI({ apiKey });
 
 export async function generateImage(description: string) {
     

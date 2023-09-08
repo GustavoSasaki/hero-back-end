@@ -39,6 +39,6 @@ export default async function handler(
         return res.json({ result: 'success' })
     } catch (err) {
         console.log(err)
-        return res.status(500).json({ result: `${process.env.BACK_END_URL}/api/saveImage` })
+        return res.status(500).json({ result: `fail` })
     }
 }
