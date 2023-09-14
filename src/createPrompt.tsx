@@ -6,7 +6,7 @@ export function createPrompt(hero: Omit<Hero, 'description'>) {
 
     let prompt = adjPrompt + ` named as ${hero.name}.`
     prompt += `${pronoun} super power is ${hero.power}.`
-    prompt += `And ${pronoun} alter ego is ${hero.power}.`
+    prompt += `${pronoun} secret identity is ${hero.power}.`
 
     return prompt
 }
@@ -23,7 +23,7 @@ function getRandomInt(max : number) {
 }
 const randomAdjectives = ['strong','beautiful','big','small','bald']
 const randomAdjectives2 = ['fat','slim','anorexic','stylish','cool','emo','occultist','surfist','humble']
-const randomAdjectives3 = ['anime','realistic','faithful','brash','witty','fantastic','berserk']
+const randomAdjectives3 = ['anime','realistic','faithful','brash','witty','fantastic','berserk','minecraft']
 
 
 function getPronoun(genre: string) {

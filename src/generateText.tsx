@@ -17,8 +17,9 @@ export async function generateText(description: string) {
 }
 
 function getUserRole(description: string): CreateChatCompletionRequestMessage{
-    let content = 'create a small and funny back story with less than 100 words to'
+    let content = 'create a small back story with less than 100 words to'
     content+=description
+    content+='. The super hero lives in MagisVille.'
 
     return { role: 'user', content}
 }
