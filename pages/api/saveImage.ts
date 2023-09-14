@@ -1,13 +1,10 @@
 import { NextApiRequest, NextApiResponse } from "next/dist/shared/lib/utils"
 import { z } from 'zod'
-import { saveDescription, saveImage } from "@/src/saveImage";
-import { generateBackstoryInput } from "./generateBackstory";
-
+import { saveImage } from "@/src/saveImage";
 const payloadSchema = z.object({
     token: z.string(),
     url: z.string(),
     id: z.number(),
-    description: z.string()
 })
 
 export default async function handler(
@@ -23,21 +20,9 @@ export default async function handler(
         }
 
         await saveImage(body.id, body.url)
-        await saveDescription(body.id, body.description)
-        await callGenerateBackStory(body)
 
         return res.json({ result: 'success' })
     } catch (err) {
         return res.status(500).json({ result: 'fail' })
     }
-}
-
-async function callGenerateBackStory(payload : generateBackstoryInput){
-
-    const body = JSON.stringify(payload)
-    void fetch(`${process.env.BACK_END_URL}/api/generateBackstory`,
-        { body, method: "POST" }
-    )
-
-    await new Promise(resolve => setTimeout(resolve, 1000));
 }

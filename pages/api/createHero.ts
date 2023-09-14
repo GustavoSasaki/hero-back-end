@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from "next/dist/shared/lib/utils"
 import { z } from 'zod'
 import { supabase } from "@/src/supabase";
 import { Database } from "@/src/database.types";
+import { createPrompt } from "@/src/createPrompt";
 
 
 const payloadSchema = z.object({
@@ -10,9 +11,9 @@ const payloadSchema = z.object({
     power: z.string(),
     gender: z.string(),
     color: z.string(),
-    age: z.string().optional().transform( x => {return x === undefined ? null : x}),
+    age: z.string().optional().transform(x => { return x === undefined ? null : x }),
 })
-export type Hero = Omit<Database['public']['Tables']['heroes']['Row'], 'id' | 'description' | 'backstory'>
+export type Hero = Omit<Database['public']['Tables']['heroes']['Row'], 'id' | 'backstory'>
 
 
 export default async function handler(
@@ -23,15 +24,15 @@ export default async function handler(
         const json = typeof req.body === 'string' ? JSON.parse(req.body) : req.body
         const body = payloadSchema.parse(json)
 
-        const { id } = await putInDatabase(body)
+        const description = createPrompt(body)
+        const { id } = await putInDatabase({ description, ...body })
 
-        const generateImageBody = JSON.stringify({ id, token: process.env.REVALIDATE_TOKEN, ...body })
-        void fetch(`${process.env.BACK_END_URL}/api/generateImage`,
-            { body: generateImageBody, method: "POST" }
-        )
+        const generateBody = JSON.stringify({ id, description, token: process.env.REVALIDATE_TOKEN })
+        void callGenerateBackStory(generateBody)
+        void callGenerateImage(generateBody)
         await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        return res.json({ id})
+
+        return res.json({ id })
     } catch (err) {
         return res.status(500).json({ result: 'fail' })
     }
@@ -45,4 +46,18 @@ async function putInDatabase(heroInfo: Hero) {
         return { id: data.id }
 
     throw new Error('error adding hero')
+}
+
+
+async function callGenerateBackStory(body: string) {
+
+    void fetch(`${process.env.BACK_END_URL}/api/generateBackstory`,
+        { body, method: "POST" }
+    )
+}
+async function callGenerateImage(body: string) {
+
+    await fetch(`${process.env.BACK_END_URL}/api/generateImage`,
+        { body, method: "POST" }
+    )
 }
