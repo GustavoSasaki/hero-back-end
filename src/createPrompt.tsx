@@ -6,15 +6,15 @@ export function createPrompt(hero: Omit<Hero, 'description'>) {
 
     let prompt = adjPrompt + ` named as ${hero.name}.`
     prompt += `${pronoun} super power is ${hero.power}.`
-    prompt += `${pronoun} secret identity is ${hero.power}.`
+    prompt += `${pronoun} secret identity and real name is ${hero.alter_ego}.`
 
     return prompt
 }
 
 function createAdjectPrompt(hero: Omit<Hero, 'description'>) {
     const adjRandom = randomAdjectives[getRandomInt(randomAdjectives.length)]
-    const adjRandom2 = randomAdjectives[getRandomInt(randomAdjectives2.length)]
-    const adjRandom3 = randomAdjectives[getRandomInt(randomAdjectives3.length)]
+    const adjRandom2 = randomAdjectives2[getRandomInt(randomAdjectives2.length)]
+    const adjRandom3 = randomAdjectives3[getRandomInt(randomAdjectives3.length)]
     return `an ${hero.gender} ${adjRandom} ${adjRandom2} ${adjRandom3} ${hero.age} super hero`
 }
 
